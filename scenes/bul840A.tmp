@@ -1,0 +1,79 @@
+[gd_scene load_steps=13 format=3 uid="uid://b0jhkwbnpcrjq"]
+
+[ext_resource type="Script" path="res://scripts/bullet_explosion_particles.gd" id="1_l8w6w"]
+[ext_resource type="Script" path="res://scripts/bullet_impact.gd" id="2_62gsq"]
+
+[sub_resource type="Gradient" id="Gradient_qfhmw"]
+offsets = PackedFloat32Array(0, 0.997525, 1)
+colors = PackedColorArray(1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_unung"]
+gradient = SubResource("Gradient_qfhmw")
+
+[sub_resource type="Curve" id="Curve_f0ok1"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.99537, 0.00394046), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_8mebw"]
+curve = SubResource("Curve_f0ok1")
+
+[sub_resource type="Curve" id="Curve_tx0ap"]
+_data = [Vector2(0.00694444, 0.863397), 0.0, 0.0, 0, 0, Vector2(0.99999, 1), 0.0, 0.0, 0, 0, Vector2(1, -30.3147), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_hcyp2"]
+curve = SubResource("Curve_tx0ap")
+
+[sub_resource type="Curve" id="Curve_5r66s"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.015324), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_yadvl"]
+curve = SubResource("Curve_5r66s")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_t0ha8"]
+lifetime_randomness = 1.0
+particle_flag_align_y = true
+particle_flag_rotate_y = true
+velocity_pivot = Vector3(0, -1, 0)
+direction = Vector3(0, 1, 0)
+spread = 90.0
+flatness = 0.3
+initial_velocity_min = -500.0
+initial_velocity_max = -500.0
+gravity = Vector3(0, 0, 0)
+scale_min = 30.0
+scale_max = 50.0
+scale_curve = SubResource("CurveTexture_yadvl")
+color = Color(1, 0.117647, 0.117647, 1)
+color_ramp = SubResource("GradientTexture1D_unung")
+emission_curve = SubResource("CurveTexture_8mebw")
+hue_variation_min = 1.0
+hue_variation_max = 1.0
+hue_variation_curve = SubResource("CurveTexture_hcyp2")
+turbulence_enabled = true
+turbulence_noise_speed = Vector3(0, 0.5, 0)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6swsa"]
+
+[node name="BulletExplosion" type="Node2D"]
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 32
+process_material = SubResource("ParticleProcessMaterial_t0ha8")
+one_shot = true
+explosiveness = 1.0
+trail_enabled = true
+trail_lifetime = 0.06
+script = ExtResource("1_l8w6w")
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_mask = 4
+script = ExtResource("2_62gsq")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CircleShape2D_6swsa")
+
+[connection signal="finished" from="GPUParticles2D" to="GPUParticles2D" method="_on_finished"]
+[connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]

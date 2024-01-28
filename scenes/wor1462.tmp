@@ -1,41 +1,14 @@
 [gd_scene load_steps=9 format=3 uid="uid://jwnd7b1fdvpf"]
 
+[ext_resource type="Script" path="res://scripts/player_controller.gd" id="1_14u0c"]
+[ext_resource type="Script" path="res://scripts/bazooka.gd" id="2_gcpge"]
+
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_lqbgp"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_718wx"]
 size = Vector2(1, 1)
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_tqwa8"]
-
-[sub_resource type="GDScript" id="GDScript_cijv2"]
-script/source = "extends CharacterBody2D
-
-
-const SPEED = 300.0
-const JUMP_VELOCITY = -400.0
-
-# Get the gravity from the project settings to be synced with RigidBody nodes.
-var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\")
-
-func _physics_process(delta):
-	# Add the gravity.
-	if not is_on_floor():
-		velocity.y += gravity * delta
-
-	# Handle jump.
-	if Input.is_action_just_pressed(\"jump\") and is_on_floor():
-		velocity.y = JUMP_VELOCITY
-
-	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
-	var direction = Input.get_axis(\"left\", \"right\")
-	if direction:
-		velocity.x = direction * SPEED
-	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
-
-	move_and_slide()
-"
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ie1oe"]
 size = Vector2(1, 1)
@@ -44,47 +17,26 @@ size = Vector2(1, 1)
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_5quqf"]
 
-[sub_resource type="GDScript" id="GDScript_dymk2"]
-script/source = "extends Sprite2D
-
-@onready var player: Node2D = %Player
-@onready var world: Node2D = $/root/World
-@onready var bulletSpawn: Node2D = %BulletSpawn
-const BAZOOKA_OFFSET = Vector2(-15, -7.5)
-
-var bulletScene = preload(\"res://bullet.tscn\")
-
-func _ready():
-	pass
-	
-func _process(_delta):
-	track_player_position()
-	track_aim_at_mouse()
-	
-	if Input.is_action_just_pressed(\"fire\"):
-		fire_bullet()
-
-func track_player_position():
-	position = player.position + BAZOOKA_OFFSET
-	
-func track_aim_at_mouse():
-	var vector = get_global_mouse_position() - position
-	rotation = vector.angle()
-
-func fire_bullet():
-	var bullet = bulletScene.instantiate()
-	bullet.rotation = bulletSpawn.global_rotation
-	bullet.position = bulletSpawn.global_position
-	world.add_child(bullet)
-"
-
 [node name="World" type="Node2D"]
 
 [node name="Enviroment" type="Node2D" parent="."]
-scale = Vector2(5, 10)
+
+[node name="Wall2" type="StaticBody2D" parent="Enviroment"]
+position = Vector2(205, -123)
+scale = Vector2(50, 200)
+physics_material_override = SubResource("PhysicsMaterial_lqbgp")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Enviroment/Wall2"]
+shape = SubResource("RectangleShape2D_718wx")
+one_way_collision_margin = 0.0
+debug_color = Color(0.678431, 0.301961, 1, 0.419608)
+
+[node name="Sprite2D" type="Sprite2D" parent="Enviroment/Wall2"]
+modulate = Color(0, 0, 0, 1)
+texture = SubResource("CanvasTexture_tqwa8")
 
 [node name="Platform" type="StaticBody2D" parent="Enviroment"]
-scale = Vector2(1000, 5)
+scale = Vector2(1000, 50)
 physics_material_override = SubResource("PhysicsMaterial_lqbgp")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Enviroment/Platform"]
@@ -97,8 +49,8 @@ modulate = Color(0, 0, 0, 1)
 texture = SubResource("CanvasTexture_tqwa8")
 
 [node name="Wall" type="StaticBody2D" parent="Enviroment"]
-position = Vector2(-15.935, -27.595)
-scale = Vector2(5, 50)
+position = Vector2(-251, -173)
+scale = Vector2(50, 300)
 physics_material_override = SubResource("PhysicsMaterial_lqbgp")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Enviroment/Wall"]
@@ -115,7 +67,7 @@ unique_name_in_owner = true
 position = Vector2(0, -71.585)
 scale = Vector2(30, 60)
 collision_layer = 4
-script = SubResource("GDScript_cijv2")
+script = ExtResource("1_14u0c")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
 shape = SubResource("RectangleShape2D_ie1oe")
@@ -125,15 +77,14 @@ modulate = Color(0, 0.709804, 0.403922, 1)
 texture = SubResource("CanvasTexture_bwtxv")
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
-position = Vector2(0, 1.19308)
-scale = Vector2(0.0333333, 0.0166667)
+position = Vector2(0, -3)
 
 [node name="Bazooka" type="Sprite2D" parent="."]
 modulate = Color(0.878431, 0.607843, 0, 1)
 position = Vector2(-15, -80.585)
 scale = Vector2(30, 12)
 texture = SubResource("CanvasTexture_5quqf")
-script = SubResource("GDScript_dymk2")
+script = ExtResource("2_gcpge")
 
 [node name="BulletSpawn" type="Node2D" parent="Bazooka"]
 unique_name_in_owner = true
